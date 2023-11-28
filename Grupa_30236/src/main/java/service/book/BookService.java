@@ -1,4 +1,4 @@
-package service;
+package service.book;
 
 import model.Book;
 
@@ -9,6 +9,8 @@ public interface BookService {
     List<Book> findAll();
 
     Book findById(Long id);
+
+    Book findBooksByTitle(String Title);
 
     boolean save(Book book);
 

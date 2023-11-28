@@ -1,4 +1,4 @@
-package repository;
+package repository.book;
 
 import model.Book;
 
@@ -37,6 +37,18 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator{
 
         return decoratedRepository.findById(id);
     }
+
+    @Override
+    public Optional<Book> findBooksByTitle(String title) {
+        if (cache.hasResult()) {
+            return cache.load()
+                    .stream()
+                    .filter(book -> book.getTitle().equals(title))
+                    .findFirst();
+        }
+        return decoratedRepository.findBooksByTitle(title); // În cazul în care nu aveți date în cache
+    }
+
 
     @Override
     public boolean save(Book book) {

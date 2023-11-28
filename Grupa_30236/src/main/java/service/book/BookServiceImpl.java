@@ -1,7 +1,7 @@
-package service;
+package service.book;
 
 import model.Book;
-import repository.BookRepository;
+import repository.book.BookRepository;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -23,6 +23,10 @@ public class BookServiceImpl implements BookService{
     @Override
     public Book findById(Long id) {
         return bookRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Book with id: %d not found".formatted(id)));
+    }
+    @Override
+    public Book findBooksByTitle(String Title) {
+        return bookRepository.findBooksByTitle(Title).orElseThrow(() -> new IllegalArgumentException("Book with title: %s not found".formatted(Title)));
     }
 
     @Override

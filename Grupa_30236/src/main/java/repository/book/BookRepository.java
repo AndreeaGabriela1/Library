@@ -1,4 +1,4 @@
-package repository;
+package repository.book;
 
 import model.Book;
 
@@ -9,6 +9,8 @@ public interface BookRepository {
     List<Book> findAll();
 
     Optional<Book> findById(Long id);
+
+    Optional<Book> findBooksByTitle(String title);
 
     boolean save(Book book);
 

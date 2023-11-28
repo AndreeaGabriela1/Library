@@ -1,4 +1,4 @@
-package repository;
+package repository.book;
 
 import model.Book;
 
@@ -23,6 +23,13 @@ public class BookRepositoryMock implements BookRepository{
     public Optional<Book> findById(Long id) {
         return books.parallelStream()
                 .filter(it -> it.getId().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<Book> findBooksByTitle(String title) {
+        return books.parallelStream()
+                .filter(book -> book.getTitle().equals(title))
                 .findFirst();
     }
 

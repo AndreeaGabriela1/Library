@@ -6,9 +6,8 @@ package model;
 
 
 import java.time.LocalDate;
-import java.util.Date;
 
-public class Book{
+public class Book implements BookInterface{
 
     private Long id;
 
@@ -18,6 +17,8 @@ public class Book{
 
     private LocalDate publishedDate;
 
+    private int quantity;
+    private double price;
 
     public Long getId() {
         return id;
@@ -51,6 +52,21 @@ public class Book{
         this.publishedDate = publishedDate;
     }
 
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
     @Override
     public String toString(){
         return String.format("Id: %d | Title: %s | Author: %s | Date: %s", this.id, this.title, this.author, this.publishedDate);
