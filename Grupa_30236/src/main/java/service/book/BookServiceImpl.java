@@ -30,10 +30,29 @@ public class BookServiceImpl implements BookService{
     }
 
     @Override
+    public Book findBooksByAuthor(String Author) {
+        return bookRepository.findBooksByAuthor(Author).orElseThrow(() -> new IllegalArgumentException("Book with title: %s not found".formatted(Author)));
+    }
+    @Override
+    public boolean updateBook(Long id, String newTitle, String newAuthor)
+    {
+        return bookRepository.updateBook(id, newTitle, newAuthor);
+    }
+
+    @Override
     public boolean save(Book book) {
         return bookRepository.save(book);
     }
-
+    @Override
+    public boolean deleteBookById(Long id)
+    {
+        return bookRepository.deleteBookById(id);
+    }
+    @Override
+    public Book findBooksByPublishedDate(LocalDate Date)
+    {
+        return bookRepository.findBooksByPublishedDate(Date).orElseThrow(() -> new IllegalArgumentException("Book with published date: %s not found".formatted(Date)));
+    }
     @Override
     public int getAgeOfBook(Long id) {
         Book book = this.findById(id);

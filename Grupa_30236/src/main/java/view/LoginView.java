@@ -24,6 +24,7 @@ public class LoginView {
     private Button signInButton;
     private Button logInButton;
     private Text actiontarget;
+    private Text actiontarget1;
     private Stage stage;
 
     public LoginView(Stage primaryStage) {

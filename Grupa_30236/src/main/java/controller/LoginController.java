@@ -1,5 +1,6 @@
 package controller;
 
+import database.Constants;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
@@ -9,6 +10,7 @@ import model.validator.Notification;
 import service.book.BookService;
 import service.user.AuthenticationService;
 import view.CustomerView;
+import view.EmployeeView;
 import view.LoginView;
 
 public class LoginController {
@@ -38,14 +40,27 @@ public class LoginController {
                 loginView.setActionTargetText(loginNotification.getFormattedErrors());
             }else{
                 loginView.setActionTargetText("LogIn Successfull!");
-                // Afișează conținutul specific clientului (CustomerView)
-                ComponentFactory factory = ComponentFactory.getInstance(false, loginView.getStage());
-                BookService bookService = factory.getBookService();
-                CustomerView customerView = new CustomerView(new Stage());
-                CustomerController customerController = new CustomerController(bookService, customerView);
+                User authenticatedUser = loginNotification.getResult(); // Obține informații despre utilizatorul autentificat
+                if (authenticatedUser.getRoles().get(0).getRole().equals(Constants.Roles.ADMINISTRATOR)) {
+                    // Inițializează interfața pentru administrator
+                    // ...
+                } else if (authenticatedUser.getRoles().get(0).getRole().equals(Constants.Roles.EMPLOYEE)) {
+                    // Inițializează interfața pentru angajați
+                    // ...
+                    ComponentFactory factory = ComponentFactory.getInstance(false, loginView.getStage());
+                    BookService bookService = factory.getBookService();
+                    EmployeeView employeeView = new EmployeeView(new Stage());
+                    EmployeeController employeeController = new EmployeeController(employeeView, bookService);
+                } else if (authenticatedUser.getRoles().get(0).getRole().equals(Constants.Roles.CUSTOMER)) {
+                    // Inițializează interfața pentru clienți
+                    // Afișează conținutul specific clientului (CustomerView)
+                    ComponentFactory factory = ComponentFactory.getInstance(false, loginView.getStage());
+                    BookService bookService = factory.getBookService();
+                    CustomerView customerView = new CustomerView(new Stage());
+                    CustomerController customerController = new CustomerController(bookService, customerView);
 
-                customerController.show(); // Afișează CustomerView
-
+                    customerController.show(); // Afișează CustomerView
+                }
                 loginView.close(); // Închide fereastra de autentificare
             }
 

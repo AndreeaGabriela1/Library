@@ -4,6 +4,7 @@ import model.Book;
 import model.builder.BookBuilder;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,28 @@ public class BookRepositoryMySQL implements BookRepository{
         return books;
     }
 
+    @Override
+    public Optional<Book> findBooksByAuthor(String author)
+    {
+        String sql = "SELECT * FROM book WHERE author = ?";
+        Optional<Book> books = Optional.empty();
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, author);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                books = Optional.of(getBookFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return books;
+    }
     /**
      *
      * How to reproduce a sql injection attack on insert statement
@@ -100,7 +123,7 @@ public class BookRepositoryMySQL implements BookRepository{
 
     @Override
     public boolean save(Book book) {
-        String sql = "INSERT INTO book VALUES(null, ?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO book VALUES(null, ?, ?, ?);";
 
         String newSql = "INSERT INTO book VALUES(null, \'" + book.getAuthor() +"\', \'"+ book.getTitle()+"\', null );";
 
@@ -114,8 +137,8 @@ public class BookRepositoryMySQL implements BookRepository{
             preparedStatement.setString(1, book.getAuthor());
             preparedStatement.setString(2, book.getTitle());
             preparedStatement.setDate(3, java.sql.Date.valueOf(book.getPublishedDate()));
-            preparedStatement.setInt(4, book.getQuantity());
-            preparedStatement.setDouble(5, book.getPrice());
+            //preparedStatement.setInt(4, book.getQuantity());
+            //preparedStatement.setDouble(5, book.getPrice());
             int rowsInserted = preparedStatement.executeUpdate();
 
             return (rowsInserted != 1) ? false : true;
@@ -126,7 +149,24 @@ public class BookRepositoryMySQL implements BookRepository{
         }
 
     }
+    @Override
+    public boolean updateBook(Long id, String newTitle, String newAuthor) {
+        String sql = "UPDATE book SET title = ?, author = ? WHERE id = ?";
 
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, newTitle);
+            preparedStatement.setString(2, newAuthor);
+            preparedStatement.setLong(3, id);
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     @Override
     public void removeAll() {
         String sql = "DELETE FROM book WHERE id >= 0;";
@@ -136,6 +176,44 @@ public class BookRepositoryMySQL implements BookRepository{
             statement.executeUpdate(sql);
         }catch (SQLException e){
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Optional<Book> findBooksByPublishedDate(LocalDate publishedDate) {
+        String sql = "SELECT * FROM book WHERE publishedDate = ?";
+        Optional<Book> books = Optional.empty();
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setDate(1, java.sql.Date.valueOf(publishedDate));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                books = Optional.of(getBookFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return books;
+    }
+    @Override
+    public boolean deleteBookById(Long id) {
+        String sql = "DELETE FROM book WHERE id = ?";
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+
+            int rowsDeleted = preparedStatement.executeUpdate();
+
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

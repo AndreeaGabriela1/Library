@@ -25,7 +25,6 @@ public class CustomerController {
     private void initialize() {
         List<Book> books = bookService.findAll();
         customerView.displayBooks(books);
-
         customerView.addBuyBooksListener(this::handleBuyBooks);
     }
 
