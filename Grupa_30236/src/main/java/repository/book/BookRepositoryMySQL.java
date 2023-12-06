@@ -120,44 +120,38 @@ public class BookRepositoryMySQL implements BookRepository{
 
     // ALWAYS use PreparedStatement when USER INPUT DATA is present
     // DON'T CONCATENATE Strings!
-
     @Override
     public boolean save(Book book) {
-        String sql = "INSERT INTO book VALUES(null, ?, ?, ?);";
-
+        String sql = "INSERT INTO book (author, title, publishedDate, price, quantity) VALUES (?, ?, ?, ?, ?);";
         String newSql = "INSERT INTO book VALUES(null, \'" + book.getAuthor() +"\', \'"+ book.getTitle()+"\', null );";
-
-
-        try{
-//            Statement statement = connection.createStatement();
-//            statement.executeUpdate(newSql);
-//            return true;
-
+        try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, book.getAuthor());
             preparedStatement.setString(2, book.getTitle());
             preparedStatement.setDate(3, java.sql.Date.valueOf(book.getPublishedDate()));
-            //preparedStatement.setInt(4, book.getQuantity());
-            //preparedStatement.setDouble(5, book.getPrice());
+            preparedStatement.setDouble(4, book.getPrice());
+            preparedStatement.setInt(5, book.getQuantity());
+
             int rowsInserted = preparedStatement.executeUpdate();
 
-            return (rowsInserted != 1) ? false : true;
+            return (rowsInserted != 1);
 
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-
     }
     @Override
-    public boolean updateBook(Long id, String newTitle, String newAuthor) {
-        String sql = "UPDATE book SET title = ?, author = ? WHERE id = ?";
+    public boolean updateBook(Long id, String newTitle, String newAuthor, Double newPrice, int newQuantity) {
+        String sql = "UPDATE book SET title = ?, author = ?, price = ?, quantity = ? WHERE id = ?";
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, newTitle);
             preparedStatement.setString(2, newAuthor);
-            preparedStatement.setLong(3, id);
+            preparedStatement.setDouble(3, newPrice);
+            preparedStatement.setInt(4, newQuantity);
+            preparedStatement.setLong(5, id);
 
             int rowsUpdated = preparedStatement.executeUpdate();
 
@@ -211,6 +205,23 @@ public class BookRepositoryMySQL implements BookRepository{
             int rowsDeleted = preparedStatement.executeUpdate();
 
             return rowsDeleted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    @Override
+    public boolean sellBook(Long bookId, int soldQuantity) {
+        String sql = "UPDATE book SET quantity = quantity - ? WHERE id = ?";
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, soldQuantity);
+            preparedStatement.setLong(2, bookId);
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            return rowsUpdated > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

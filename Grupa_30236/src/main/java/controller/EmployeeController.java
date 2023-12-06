@@ -3,6 +3,9 @@ package controller;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import model.Book;
+import model.PdfReportGenerator;
+import service.SaleService;
+import service.SaleServiceImpl;
 import service.book.BookService;
 import view.EmployeeView;
 
@@ -32,8 +35,19 @@ public class EmployeeController {
         employeeView.addSearchButtonListener(new SearchButtonListener());
         employeeView.addUpdateButtonListener(new UpdateButtonListener());
         employeeView.addDeleteButtonListener(new DeleteButtonListener());
+        employeeView.addSellButtonListener(new SellButtonListener());
+    }
+    private void generatePdfReport(List<Book> soldBooks) {
+        String filePath = "C:\\Users\\LENOVO\\IdeaProjects\\lab5_is\\Grupa_30236\\report.pdf"; // Specifică calea și numele fișierului PDF generat
+        PdfReportGenerator.generateReport(soldBooks, filePath);
     }
 
+    // Metodă în care obții lista de cărți vândute și apelezi funcția de generare a raportului
+    public void generateSoldBooksReport() {
+        SaleService saleService = new SaleServiceImpl(bookService);
+        List<Book> soldBooks = saleService.getSoldBooks(); // Presupunând că există o metodă pentru a obține cărțile vândute
+        generatePdfReport(soldBooks);
+    }
     private class AddButtonListener implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
@@ -109,28 +123,35 @@ public class EmployeeController {
         private void displaySearchResults(List<Book> foundBooks) {
             employeeView.displayBooks(foundBooks);
         }
-
-//        private void displaySearchResults(Book foundBook) {
-//            List<Book> foundBooks = new ArrayList<>();
-//            if (foundBook != null) {
-//                foundBooks.add(foundBook);
-//            }
-//            employeeView.displayBooks(foundBooks);
-//        }
     }
     private class UpdateButtonListener implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            Long bookId = employeeView.getSearchId(); // Ia ID-ul cărții pentru actualizare
-            String newTitle = employeeView.getSearchTitle(); // Ia noul titlu din TextField
-            String newAuthor = employeeView.getSearchAuthor(); // Ia noul autor din TextField
+            Long bookId = employeeView.getSearchId();
+            String newTitle = employeeView.getSearchTitle();
+            String newAuthor = employeeView.getSearchAuthor();
+            String priceString = employeeView.getPrice();
+            String quantityString = employeeView.getQuantity();
 
-            boolean updated = bookService.updateBook(bookId, newTitle, newAuthor);
+            if (!priceString.isEmpty() && !quantityString.isEmpty()) {
+                try {
+                    double newPrice = Double.parseDouble(priceString);
+                    int newQuantity = Integer.parseInt(quantityString);
 
-            if (updated) {
-                displayBooksInTable(); // Actualizează tabela cu cărți
+                    boolean updated = bookService.updateBook(bookId, newTitle, newAuthor, newPrice, newQuantity);
+
+                    if (updated) {
+                        displayBooksInTable(); // Actualizează tabela cu cărți
+                    } else {
+                        // Tratează situația în care nu s-a putut face actualizarea
+                    }
+                } catch (NumberFormatException e) {
+                    // Tratează cazul în care nu s-a putut converti prețul sau cantitatea în numere valide
+                    e.printStackTrace();
+                    // Poți afișa un mesaj utilizatorului sau trata altfel această situație
+                }
             } else {
-                // Tratează situația în care nu s-a putut face actualizarea
+                // Poți afișa un mesaj utilizatorului că trebuie să completeze toate câmpurile
             }
         }
     }
@@ -144,6 +165,44 @@ public class EmployeeController {
             } else {
                 // Tratează situația în care ștergerea nu a reușit
             }
+        }
+    }
+    private class SellButtonListener implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent event) {
+            Long bookId = employeeView.getSearchId();
+            int sellQuantity = Integer.parseInt(employeeView.getQuantity());
+            if (sellQuantity > 0) {
+                // Obține cărțile corespunzătoare bookId din baza de date
+                Book book = bookService.findById(bookId);
+
+                if (book != null) {
+                    int availableQuantity = book.getQuantity();
+
+                    if (sellQuantity <= availableQuantity) {
+                        // Actualizează cantitatea disponibilă în baza de date
+                        int newQuantity = availableQuantity - sellQuantity;
+                        boolean sold = bookService.sellBook(bookId, newQuantity);
+                        if (sold) {
+                            // Actualizează tabela cu cărți pentru a reflecta schimbările
+                            SaleService saleService = new SaleServiceImpl(bookService);
+                            saleService.recordSale(bookId,sellQuantity);
+                            displayBooksInTable();
+
+                        } else {
+                            // Tratează cazul în care nu s-a putut realiza vânzarea
+                        }
+                    } else {
+                        // Tratează cazul în care cantitatea de vândut depășește cantitatea disponibilă
+                    }
+                } else {
+                    // Tratează cazul în care cartea nu a fost găsită în baza de date
+                }
+            } else {
+                // Tratează cazul în care cantitatea de vândut nu este validă (<= 0)
+            }
+            displayBooksInTable();
+            generateSoldBooksReport();
         }
     }
 }

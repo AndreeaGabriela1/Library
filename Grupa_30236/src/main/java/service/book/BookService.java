@@ -14,11 +14,12 @@ public interface BookService {
     Book findBooksByTitle(String Title);
 
     boolean save(Book book);
-    boolean updateBook(Long id, String newTitle, String newAuthor);
+    boolean updateBook(Long id, String newTitle, String newAuthor, Double newPrice, int newQuantity);
 
     int getAgeOfBook(Long id);
 
     Book findBooksByAuthor(String Author);
     Book findBooksByPublishedDate(LocalDate Date);
     boolean deleteBookById(Long id);
+    boolean sellBook(Long bookId, int newQuantity);
 }

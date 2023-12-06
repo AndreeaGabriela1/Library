@@ -74,10 +74,10 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator{
         return decoratedRepository.findBooksByAuthor(author);
     }
     @Override
-    public boolean updateBook(Long id, String newTitle, String newAuthor)
+    public boolean updateBook(Long id, String newTitle, String newAuthor, Double newPrice, int newQuantity)
     {
         cache.invalidateCache();
-        return decoratedRepository.updateBook(id, newTitle, newAuthor);
+        return decoratedRepository.updateBook(id, newTitle, newAuthor, newPrice, newQuantity);
     }
 
     @Override
@@ -95,5 +95,15 @@ public class BookRepositoryCacheDecorator extends BookRepositoryDecorator{
     public boolean deleteBookById(Long id) {
         cache.invalidateCache();
         return decoratedRepository.deleteBookById(id);
+    }
+    @Override
+    public boolean sellBook(Long bookId, int soldQuantity) {
+        boolean bookSold = decoratedRepository.sellBook(bookId, soldQuantity);
+
+        if (bookSold) {
+            cache.invalidateCache();
+        }
+
+        return bookSold;
     }
 }

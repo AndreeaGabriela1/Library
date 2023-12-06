@@ -28,11 +28,14 @@ public class EmployeeView {
     private Button searchButton;
     private Button updateButton;
     private Button deleteButton;
+    private Button sellButton;
     private TableView<Book> bookTableView;
     private TextField idField;
     private DatePicker PublishedDateField;
 
     private ComboBox<String> searchCriteriaComboBox;
+    private TextField priceField;
+    private TextField quantityField;
 
 
     // Alte câmpuri necesare pentru interacțiunea cu cărțile
@@ -88,8 +91,6 @@ public class EmployeeView {
         authorField = new TextField();
         gridPane.add(authorField, 1, 3);
 
-
-
         Label addPublishedDateLabel = new Label("Published Date:");
         gridPane.add(addPublishedDateLabel, 0, 4);
 
@@ -97,21 +98,34 @@ public class EmployeeView {
         gridPane.add(PublishedDateField, 1, 4);
 
         addButton = new Button("Add Book");
-        gridPane.add(addButton, 0, 7, 2, 1);
+        gridPane.add(addButton, 0, 8);
 
         searchButton = new Button("Search Book");
-        gridPane.add(searchButton, 1, 7);
+        gridPane.add(searchButton, 1, 8);
 
         updateButton = new Button("Update Book");
-        gridPane.add(updateButton, 2, 7);
+        gridPane.add(updateButton, 2, 8);
 
         deleteButton = new Button("Delete Book");
-        gridPane.add(deleteButton, 3, 7);
+        gridPane.add(deleteButton, 3, 8);
+
+        sellButton = new Button("Sell Book");
+        gridPane.add(sellButton, 4, 8);
 
         searchCriteriaComboBox = new ComboBox<>();
         searchCriteriaComboBox.getItems().addAll("Id", "Title", "Author", "Published Date");
         searchCriteriaComboBox.setValue("Id"); // Seteaza implicit criteriul de cautare
         gridPane.add(searchCriteriaComboBox, 2, 1);
+
+        Label priceLabel = new Label("Price:");
+        gridPane.add(priceLabel, 0, 5);
+        priceField = new TextField(); // Adaugă un câmp text pentru preț
+        gridPane.add(priceField, 1, 5);
+
+        Label quantityLabel = new Label("Quantity:");
+        gridPane.add(quantityLabel, 0, 6);
+        quantityField = new TextField(); // Adaugă un câmp text pentru cantitate
+        gridPane.add(quantityField, 1, 6);
     }
 
     private void initializeBookTableView(GridPane gridPane) {
@@ -127,8 +141,15 @@ public class EmployeeView {
         TableColumn<Book, LocalDate> publishedDateColumn = new TableColumn<>("Published Date");
         publishedDateColumn.setCellValueFactory(new PropertyValueFactory<>("publishedDate"));
 
-        bookTableView.getColumns().addAll(idColumn, titleColumn, authorColumn, publishedDateColumn);
-        gridPane.add(bookTableView, 0, 5, 3, 1);
+        TableColumn<Book, Double> priceColumn = new TableColumn<>("Price");
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        TableColumn<Book, Integer> quantityColumn = new TableColumn<>("Quantity");
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        bookTableView.getColumns().addAll(idColumn, titleColumn, authorColumn, publishedDateColumn, priceColumn, quantityColumn);
+        //bookTableView.getColumns().addAll(idColumn, titleColumn, authorColumn, publishedDateColumn);
+        gridPane.add(bookTableView, 0, 7, 3, 1);
     }
     public void displayBooks(List<Book> books) {
         bookTableView.getItems().clear(); // Curăță tabelul pentru a preveni dublarea informațiilor
@@ -153,6 +174,13 @@ public class EmployeeView {
     public String getSelectedSearchCriteria() {
         return searchCriteriaComboBox.getValue();
     }
+    public String getPrice() {
+        return this.priceField.getText();
+    }
+
+    public String getQuantity() {
+        return this.quantityField.getText();
+    }
     public void addAddButtonListener(EventHandler<ActionEvent> handler) {
         // Metoda pentru adăugarea unei cărți
         addButton.setOnAction(event -> {
@@ -169,12 +197,29 @@ public class EmployeeView {
         String title = titleField.getText();
         String author = authorField.getText();
         LocalDate publishedDate = PublishedDateField.getValue();
-
+        double price = 0.0;
+        if (!priceField.getText().isEmpty()) {
+            try {
+                price = Double.parseDouble(priceField.getText());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        int quantity = 0;
+        if (!quantityField.getText().isEmpty()) {
+            try {
+                quantity = Integer.parseInt(quantityField.getText());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
         // Crează și returnează o nouă carte cu datele din interfață
         Book newBook = new BookBuilder()
                 .setTitle(title)
                 .setAuthor(author)
                 .setPublishedDate(publishedDate)
+                .setPrice(price)
+                .setQuantity(quantity)
                 .build();
         return newBook;
     }
@@ -195,5 +240,8 @@ public class EmployeeView {
     public void addDeleteButtonListener(EventHandler<ActionEvent> handler) {
         // Metoda pentru ștergerea unei cărți
         deleteButton.setOnAction(handler);
+    }
+    public void addSellButtonListener(EventHandler<ActionEvent> handler) {
+        sellButton.setOnAction(handler);
     }
 }

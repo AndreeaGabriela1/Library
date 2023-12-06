@@ -18,7 +18,8 @@ public interface BookRepository {
     void removeAll();
 
     Optional<Book> findBooksByAuthor(String author);
-    boolean updateBook(Long id, String newTitle, String newAuthor);
+    boolean updateBook(Long id, String newTitle, String newAuthor, Double newPrice, int newQuantity);
     Optional<Book> findBooksByPublishedDate(LocalDate publishedDate);
     boolean deleteBookById(Long id);
+    boolean sellBook(Long bookId, int soldQuantity);
 }

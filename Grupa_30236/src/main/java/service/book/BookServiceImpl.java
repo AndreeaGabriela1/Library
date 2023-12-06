@@ -9,12 +9,10 @@ import java.util.List;
 
 public class BookServiceImpl implements BookService{
 
-    final BookRepository bookRepository;
-
+    final BookRepository bookRepository;;
     public BookServiceImpl(BookRepository bookRepository){
         this.bookRepository = bookRepository;
     }
-
     @Override
     public List<Book> findAll() {
         return bookRepository.findAll();
@@ -34,11 +32,14 @@ public class BookServiceImpl implements BookService{
         return bookRepository.findBooksByAuthor(Author).orElseThrow(() -> new IllegalArgumentException("Book with title: %s not found".formatted(Author)));
     }
     @Override
-    public boolean updateBook(Long id, String newTitle, String newAuthor)
+    public boolean updateBook(Long id, String newTitle, String newAuthor, Double newPrice, int newQuantity)
     {
-        return bookRepository.updateBook(id, newTitle, newAuthor);
+        return bookRepository.updateBook(id, newTitle, newAuthor, newPrice, newQuantity);
     }
-
+    @Override
+    public boolean sellBook(Long bookId, int newQuantity) {
+        return bookRepository.sellBook(bookId, newQuantity);
+    }
     @Override
     public boolean save(Book book) {
         return bookRepository.save(book);

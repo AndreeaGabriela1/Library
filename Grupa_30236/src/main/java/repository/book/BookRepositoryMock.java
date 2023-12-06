@@ -40,13 +40,15 @@ public class BookRepositoryMock implements BookRepository{
     }
 
     @Override
-    public boolean updateBook(Long id, String newTitle, String newAuthor)
+    public boolean updateBook(Long id, String newTitle, String newAuthor, Double newPrice, int newQuantity)
     {
         Optional<Book> bookToUpdate = findById(id);
         if (bookToUpdate.isPresent()) {
             Book book = bookToUpdate.get();
             book.setTitle(newTitle);
             book.setAuthor(newAuthor);
+            book.setPrice(newPrice);
+            book.setQuantity(newQuantity);
             return true;
         }
         return false;
@@ -62,6 +64,22 @@ public class BookRepositoryMock implements BookRepository{
     @Override
     public boolean deleteBookById(Long id) {
         return books.removeIf(book -> book.getId().equals(id));
+    }
+
+    @Override
+    public boolean sellBook(Long bookId, int soldQuantity) {
+        Optional<Book> optionalBook = findById(bookId);
+
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            int currentQuantity = book.getQuantity();
+
+            if (currentQuantity >= soldQuantity) {
+                book.setQuantity(currentQuantity - soldQuantity);
+                return true; // Returnează true pentru a indica vânzarea cu succes
+            }
+        }
+        return false; // Returnează false în cazul în care nu s-a putut vinde
     }
 
     @Override
