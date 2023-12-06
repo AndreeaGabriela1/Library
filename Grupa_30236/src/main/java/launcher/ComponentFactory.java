@@ -13,6 +13,8 @@ import service.book.BookService;
 import service.book.BookServiceImpl;
 import service.user.AuthenticationService;
 import service.user.AuthenticationServiceMySQL;
+import service.user.UserService;
+import service.user.UserServiceImpl;
 import view.CustomerView;
 import view.LoginView;
 
@@ -25,6 +27,7 @@ public class ComponentFactory {
     private final UserRepository userRepository;
     private final RightsRolesRepository rightsRolesRepository;
     private final BookRepositoryMySQL bookRepository;
+    private final UserService userService;
     private static ComponentFactory instance;
 
     private CustomerView customerView;
@@ -48,6 +51,7 @@ public class ComponentFactory {
         this.bookRepository = new BookRepositoryMySQL(connection);
         //this.customerView = new CustomerView(stage);
         this.bookService = new BookServiceImpl(bookRepository);
+        this.userService = new UserServiceImpl(userRepository);
         //this.customerController = new CustomerController(bookService, customerView);
     }
 
@@ -77,4 +81,7 @@ public class ComponentFactory {
     public CustomerController getCustomerController(){return customerController;}
     public BookService getBookService(){return bookService;}
 
+    public UserService getUserService() {
+        return userService;
+    }
 }

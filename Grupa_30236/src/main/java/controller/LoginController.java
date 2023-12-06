@@ -9,6 +9,8 @@ import model.User;
 import model.validator.Notification;
 import service.book.BookService;
 import service.user.AuthenticationService;
+import service.user.UserService;
+import view.AdminView;
 import view.CustomerView;
 import view.EmployeeView;
 import view.LoginView;
@@ -43,7 +45,10 @@ public class LoginController {
                 User authenticatedUser = loginNotification.getResult(); // Obține informații despre utilizatorul autentificat
                 if (authenticatedUser.getRoles().get(0).getRole().equals(Constants.Roles.ADMINISTRATOR)) {
                     // Inițializează interfața pentru administrator
-                    // ...
+                    ComponentFactory factory = ComponentFactory.getInstance(false, loginView.getStage());
+                    UserService userService = factory.getUserService();
+                    AdminView adminView = new AdminView(new Stage());
+                    AdminController adminController = new AdminController(adminView, userService);
                 } else if (authenticatedUser.getRoles().get(0).getRole().equals(Constants.Roles.EMPLOYEE)) {
                     // Inițializează interfața pentru angajați
                     // ...

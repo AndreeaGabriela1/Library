@@ -1,18 +1,16 @@
 package repository.user;
+
 import model.User;
 import model.builder.UserBuilder;
 import model.validator.Notification;
 import repository.security.RightsRolesRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static database.Constants.Tables.USER;
-import static java.util.Collections.singletonList;
 
 public class UserRepositoryMySQL implements UserRepository {
 
@@ -27,7 +25,29 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return null;
+        try {
+            List<User> users = new ArrayList<>();
+            Statement statement = connection.createStatement();
+
+            String fetchAllUsersSql = "SELECT * FROM `" + USER + "`";
+            ResultSet userResultSet = statement.executeQuery(fetchAllUsersSql);
+
+            while (userResultSet.next()) {
+                User user = new UserBuilder()
+                        .setId(userResultSet.getLong("id"))
+                        .setUsername(userResultSet.getString("username"))
+                        .setPassword(userResultSet.getString("password"))
+                        // Set other user properties as needed
+                        .build();
+
+                users.add(user);
+            }
+
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList(); // Return an empty list or handle the exception accordingly
+        }
     }
 
     // SQL Injection Attacks should not work after fixing functions
