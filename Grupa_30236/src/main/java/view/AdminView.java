@@ -7,17 +7,18 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.Role;
 import model.User;
+import model.builder.UserBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdminView {
@@ -28,6 +29,11 @@ public class AdminView {
     private Button deleteButton;
     private Button fireButton;
     private TableView<User> userTableView;
+    private TextField idField;
+    private TextField emailField;
+    private TextField passwordField;
+    private ComboBox<String> userTypeComboBox;
+
 
     public AdminView(Stage primaryStage) {
         primaryStage.setTitle("Admin Interface");
@@ -44,6 +50,17 @@ public class AdminView {
         initializeUserTableView(gridPane);
 
         initializeButtons(gridPane);
+        idField = new TextField();
+        idField.setPromptText("Enter User ID");
+        gridPane.add(idField, 0, 9);
+
+        emailField = new TextField();
+        emailField.setPromptText("Enter Email");
+        gridPane.add(emailField, 1, 9);
+
+        passwordField = new TextField();
+        passwordField.setPromptText("Enter Password");
+        gridPane.add(passwordField, 2, 9);
 
         primaryStage.show();
     }
@@ -53,6 +70,10 @@ public class AdminView {
         gridPane.setHgap(10);
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(25, 25, 25, 25));
+        userTypeComboBox = new ComboBox<>();
+        userTypeComboBox.getItems().addAll("Employee", "Customer");
+        userTypeComboBox.setValue("Employee"); // Valoarea implicită
+        gridPane.add(userTypeComboBox, 3, 9); // Adaugare ComboBox în gridPane
     }
 
     private void initializeSceneTitle(GridPane gridPane){
@@ -77,7 +98,7 @@ public class AdminView {
         searchButton = new Button("Search User");
         updateButton = new Button("Update User");
         deleteButton = new Button("Delete User");
-        fireButton = new Button("Sell User");
+        fireButton = new Button("Generate Report");
 
         gridPane.add(addButton, 0, 8);
         gridPane.add(searchButton, 1, 8);
@@ -92,9 +113,21 @@ public class AdminView {
         userTableView.setItems(observableList);
     }
 
-    // Metode pentru a extrage datele din interfață pentru diferite acțiuni
-    // ...
-
+    public long getId()
+    {
+        return Long.parseLong(idField.getText());
+    }
+    public String getUsername()
+    {
+        return emailField.getText();
+    }
+    public String getPassword()
+    {
+        return passwordField.getText();
+    }
+    public String getUserType() {
+        return userTypeComboBox.getValue();
+    }
     public void addAddUserListener(EventHandler<ActionEvent> handler) {
         addButton.setOnAction(handler);
     }
@@ -111,11 +144,24 @@ public class AdminView {
         deleteButton.setOnAction(handler);
     }
 
-    public void addFireButtonListener(EventHandler<ActionEvent> handler) {
+    public void addGenerateButtonListener(EventHandler<ActionEvent> handler) {
         fireButton.setOnAction(handler);
     }
 
     public User getUserDataFromFields() {
-        return null;
+        long id = Long.parseLong(idField.getText()); // Conversia textului din câmp într-un număr
+        String username = emailField.getText(); // Adresa de email poate fi considerată ca și username
+        String password = passwordField.getText();
+        String role = userTypeComboBox.getValue();
+        List<Role> roles = new ArrayList<>();
+        if (role.equals("Employee")) {
+            Role employeeRole = new Role(1L, "Employee", null); // Aici vei adăuga logica de a obține drepturile pentru rolul de Employee
+            roles.add(employeeRole);
+        } else if (role.equals("Customer")) {
+            Role customerRole = new Role(2L, "Customer", null); // Aici vei adăuga logica de a obține drepturile pentru rolul de Customer
+            roles.add(customerRole);
+        }
+        // Construiește și returnează un nou obiect User
+        return new UserBuilder().setId(id).setUsername(username).setPassword(password).setRoles(roles).build();
     }
 }

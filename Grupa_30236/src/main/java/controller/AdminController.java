@@ -7,6 +7,7 @@ import model.User;
 import service.user.UserService;
 import view.AdminView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdminController {
@@ -30,14 +31,27 @@ public class AdminController {
         adminView.addAddUserListener(new AddUserListener());
         adminView.addUpdateUserListener(new UpdateUserListener());
         adminView.addDeleteUserListener(new DeleteUserListener());
-        // ... alte evenimente
+        adminView.addSearchButtonListener(new SearchUserListener());
     }
-
+    private class SearchUserListener implements EventHandler<ActionEvent>
+    {
+        @Override
+        public void handle(ActionEvent event)
+        {
+            Long id = adminView.getId();
+            // Caută utilizatorii după username în baza de date
+            List<User> foundUsers = new ArrayList<>();
+            User user = userService.findUser(id);
+            foundUsers.add(user);
+            // Afișează rezultatul căutării în interfața de utilizator
+            adminView.displayUsers(foundUsers);
+        }
+    }
     private class AddUserListener implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
             User newUser = adminView.getUserDataFromFields();
-            boolean added = userService.addUser(newUser);
+            boolean added = userService.addUser(newUser); // Presupunând că există o metodă în UserService pentru adăugarea utilizatorului cu rolurile asociate
             if (added) {
                 displayUsersInTable();
             }
@@ -47,16 +61,28 @@ public class AdminController {
     private class UpdateUserListener implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            // Implementează logica pentru actualizarea utilizatorilor
+            long userId = adminView.getId(); // ID-ul utilizatorului de actualizat
+            User updatedUser = adminView.getUserDataFromFields(); // Noile date pentru utilizator
+
+            // Actualizarea utilizatorului în baza de date
+            boolean updated = userService.updateUser(userId, updatedUser);
+            if (updated) {
+                displayUsersInTable();
+            }
         }
     }
 
     private class DeleteUserListener implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            // Implementează logica pentru ștergerea utilizatorilor
+            long userId = adminView.getId(); // ID-ul utilizatorului de șters
+
+            // Ștergerea utilizatorului din baza de date
+            boolean deleted = userService.deleteUser(userId);
+            if (deleted) {
+                displayUsersInTable();
+            }
         }
     }
 
-    // ... alte metode specifice pentru operațiile cu utilizatori
 }

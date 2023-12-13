@@ -33,7 +33,9 @@ public class CustomerController {
         for (String title : selectedBookTitles) {
             Book selectedBook = bookService.findBooksByTitle(title);
             if (selectedBook != null) {
-                //bookService.purchaseBook(selectedBook);
+                bookService.sellBook(selectedBook.getId(), selectedBook.getQuantity());
+                List<Book> books = bookService.findAll();
+                customerView.displayBooks(books);
             } else {
                 //
             }

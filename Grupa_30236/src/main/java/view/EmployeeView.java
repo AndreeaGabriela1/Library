@@ -56,7 +56,6 @@ public class EmployeeView {
         bookTableView = new TableView<>();
         initializeBookTableView(gridPane);
 
-
         primaryStage.show();
     }
 

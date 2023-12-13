@@ -137,5 +137,55 @@ public class UserRepositoryMySQL implements UserRepository {
             return false;
         }
     }
+    @Override
+    public User findById(long userId) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM `user` WHERE `id` = ?");
+            statement.setLong(1, userId);
+            ResultSet userResultSet = statement.executeQuery();
+
+            if (userResultSet.next()) {
+                User user = new UserBuilder()
+                        .setId(userResultSet.getLong("id"))
+                        .setUsername(userResultSet.getString("username"))
+                        .setPassword(userResultSet.getString("password"))
+                        // Set other user properties as needed
+                        .build();
+                return user;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if user is not found or an exception occurs
+    }
+    @Override
+    public boolean update(User user) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE `user` SET `username` = ?, `password` = ? WHERE `id` = ?");
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getPassword());
+            statement.setLong(3, user.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0; // Return true if the update was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    @Override
+    public boolean delete(User user) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM `user` WHERE `id` = ?");
+            statement.setLong(1, user.getId());
+
+            int rowsDeleted = statement.executeUpdate();
+            return rowsDeleted > 0; // Return true if the deletion was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 }
