@@ -1,0 +1,1 @@
+This project implements a library, which can have three types of users (admin, employee, customer) with different functionalities for each type of user. Also I used for building this project bootstrap.
